@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "motion/react";
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { SAGA_METADATA, SAGA_DATA } from "./types";
+import { SAGA_METADATA, SAGA_DATA, SubtitleLanguage } from "./types";
 import { Play, Pause, RotateCcw, RotateCw, Info, Volume2, VolumeX, Sparkles, LayoutGrid, ChevronRight, Languages, Lock, CreditCard, X, Settings2, FastForward, Home, ZoomIn, ZoomOut, Maximize2, Move, Heart, Eye, MessageSquare } from "lucide-react";
 import { db } from "./lib/firebase";
 import { doc, onSnapshot, updateDoc, increment, getDoc, setDoc, deleteDoc, collection, query, serverTimestamp } from "firebase/firestore";
@@ -492,6 +492,45 @@ const CinematicVFX = ({ mode, isPlaying, stage }: { mode: string; isPlaying: boo
   );
 };
 
+const CHAPTERS = [
+  { 
+    name: "INTRO", 
+    time: 0, 
+    color: "from-blue-600/20 via-black to-black", 
+    accent: "text-blue-400", 
+    border: "border-blue-500/30", 
+    glow: "shadow-[0_0_50px_rgba(37,99,235,0.2)]",
+    timeline: "from-blue-500 to-cyan-500"
+  },
+  { 
+    name: "HORROR", 
+    time: 2400, 
+    color: "from-red-900/20 via-black to-black", 
+    accent: "text-red-500", 
+    border: "border-red-500/30", 
+    glow: "shadow-[0_0_50px_rgba(220,38,38,0.2)]",
+    timeline: "from-red-600 to-purple-900"
+  },
+  { 
+    name: "CLIMAX", 
+    time: 6000, 
+    color: "from-orange-600/20 via-black to-black", 
+    accent: "text-orange-500", 
+    border: "border-orange-500/30", 
+    glow: "shadow-[0_0_50px_rgba(249,115,22,0.2)]",
+    timeline: "from-orange-500 to-red-600"
+  },
+  { 
+    name: "ENDING", 
+    time: 8400, 
+    color: "from-yellow-600/20 via-black to-black", 
+    accent: "text-yellow-400", 
+    border: "border-yellow-400/30", 
+    glow: "shadow-[0_0_50px_rgba(250,204,21,0.2)]",
+    timeline: "from-yellow-400 to-white"
+  },
+];
+
 export default function App() {
   const [currentPartId, setCurrentPartId] = useState(1);
   const [currentSceneIndex, setCurrentSceneIndex] = useState(0);
@@ -503,13 +542,14 @@ export default function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
-  const [language, setLanguage] = useState<'en' | 'fil'>('en');
+  const [language, setLanguage] = useState<SubtitleLanguage>('en');
   const [isFullMovieMode, setIsFullMovieMode] = useState(false);
   
   // J.C. STAFF Production Workspace States
   const [productionStage, setProductionStage] = useState<'rough' | 'ink' | 'color' | 'composite' | 'auto'>('auto');
   const [showWorkspace, setShowWorkspace] = useState(true);
   const [showMocapData, setShowMocapData] = useState(false);
+  const [isRotated, setIsRotated] = useState(false);
   
   // Workspace Navigation States (Zoom & Pan)
   const [zoom, setZoom] = useState(1);
@@ -587,7 +627,23 @@ export default function App() {
     setHasLiked(true);
   };
 
+  const toggleFullScreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   const currentPart = useMemo(() => SAGA_DATA.find(p => p.id === currentPartId) || SAGA_DATA[0], [currentPartId]);
+  
+  const currentTheme = useMemo(() => {
+    const active = [...CHAPTERS].reverse().find(c => currentTime >= c.time);
+    return active || CHAPTERS[0];
+  }, [currentTime]);
   
   const activeScenes = isFullMovieMode ? ALL_SCENES : currentPart.scenes;
   const currentScene = activeScenes[currentSceneIndex] || activeScenes[0];
@@ -898,10 +954,17 @@ export default function App() {
 
   return (
     <div className="relative w-full min-h-screen bg-black overflow-y-auto font-sans text-white select-none scroll-smooth">
-      <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col gap-8">
+      <div className={`fixed inset-0 bg-gradient-to-br ${currentTheme.color} pointer-events-none transition-all duration-1000 z-0`} />
+      <div className="relative max-w-7xl mx-auto px-4 py-8 flex flex-col gap-8 z-10">
         
         {/* Video Player Section */}
-        <div className="relative aspect-video w-full bg-zinc-900 rounded-[2rem] overflow-hidden shadow-2xl border border-white/5 group">
+        <div 
+          ref={containerRef}
+          className={`relative aspect-video w-full bg-zinc-900 rounded-[2rem] overflow-hidden shadow-2xl border ${currentTheme.border} group transition-all duration-500 ease-in-out origin-center ${currentTheme.glow}`}
+          style={{ 
+            transform: isRotated ? 'rotate(90deg) scale(0.6)' : 'rotate(0deg) scale(1)',
+          }}
+        >
           {/* VFX: Particles/Stardust Overlay */}
           <div className="absolute inset-0 pointer-events-none z-10">
         {[...Array(20)].map((_, i) => (
@@ -1005,7 +1068,24 @@ export default function App() {
                 <span className="block text-blue-500 text-sm md:text-xl font-bold tracking-[0.5em] mb-4 not-italic opacity-70">
                   {isFullMovieMode ? 'SCENE ' + (currentSceneIndex + 1) : currentPart.subtitle}
                 </span>
-                {language === 'fil' ? currentScene.textFilipino || currentScene.text : currentScene.text}
+                {
+                  language === 'fil' ? currentScene.textFilipino || currentScene.text :
+                  language === 'jp' ? currentScene.textJapanese || currentScene.text :
+                  language === 'romaji' ? currentScene.textRomaji || currentScene.text :
+                  language === 'katakana' ? currentScene.textKatakana || currentScene.text :
+                  language === 'hiragana' ? currentScene.textHiragana || currentScene.text :
+                  language === 'kanji' ? currentScene.textKanji || currentScene.text :
+                  language === 'singaporean' ? currentScene.textSingaporean || currentScene.text :
+                  language === 'vietnamese' ? currentScene.textVietnamese || currentScene.text :
+                  language === 'thai' ? currentScene.textThai || currentScene.text :
+                  language === 'korean' ? currentScene.textKorean || currentScene.text :
+                  language === 'chinese' ? currentScene.textChinese || currentScene.text :
+                  language === 'spanish' ? currentScene.textSpanish || currentScene.text :
+                  language === 'mexican' ? currentScene.textMexican || currentScene.text :
+                  language === 'russian' ? currentScene.textRussian || currentScene.text :
+                  language === 'german' ? currentScene.textGerman || currentScene.text :
+                  currentScene.text
+                }
               </h2>
               <motion.div 
                 initial={{ width: 0 }}
@@ -1114,6 +1194,20 @@ export default function App() {
             <span className="hidden md:inline text-[10px] font-black tracking-widest uppercase">Audio & Subtitles</span>
           </button>
           <button 
+            onClick={() => setIsRotated(!isRotated)}
+            className={`p-3 rounded-full transition-all ${isRotated ? 'bg-blue-600 text-white' : 'text-white/70 hover:bg-white/10'}`}
+            title="Tilt Screen"
+          >
+            <RotateCw size={20} />
+          </button>
+          <button 
+            onClick={toggleFullScreen}
+            className="p-3 text-white/70 hover:text-white transition-colors"
+            title="Full Screen"
+          >
+            <Maximize2 size={20} />
+          </button>
+          <button 
             onClick={() => setShowMenu(!showMenu)}
             className={`p-3 rounded-full transition-all ${showMenu ? 'bg-blue-600 text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'}`}
           >
@@ -1132,7 +1226,7 @@ export default function App() {
             <Info size={20} />
           </button>
           <div className="flex flex-col items-end">
-            <span className="text-[10px] font-bold tracking-[0.3em] uppercase text-blue-400 mb-1 flex items-center gap-1">
+            <span className={`text-[10px] font-bold tracking-[0.3em] uppercase ${currentTheme.accent} mb-1 flex items-center gap-1`}>
               <Sparkles size={10} /> VFX ACTIVE
             </span>
             <p className="text-xs font-mono text-white/40 tracking-widest uppercase">
@@ -1142,6 +1236,57 @@ export default function App() {
         </div>
       </motion.div>
     </div>
+
+      {/* Chapter Timeline (Full Movie Mode Only) */}
+      {isFullMovieMode && (
+        <div className="w-full max-w-7xl mx-auto px-4 mt-[-1rem]">
+          <div className="bg-zinc-900/50 backdrop-blur-xl rounded-2xl p-4 border border-white/5 flex flex-col gap-4">
+            <div className="flex items-center justify-between px-2">
+              <h4 className="text-[10px] font-black tracking-[0.4em] text-white/40 uppercase">Saga Chapters</h4>
+              <div className="text-[10px] font-mono text-white/20">9,240 SECONDS TOTAL RUNTIME</div>
+            </div>
+            
+            <div className="relative h-12 flex items-center gap-1 group">
+              {CHAPTERS.map((chapter, idx) => {
+                const nextTime = CHAPTERS[idx + 1]?.time || 9240;
+                const width = ((nextTime - chapter.time) / 9240) * 100;
+                const isActive = currentTime >= chapter.time && currentTime < nextTime;
+                
+                return (
+                  <button
+                    key={chapter.name}
+                    onClick={() => setCurrentTime(chapter.time)}
+                    className="relative h-full transition-all duration-500 flex-1"
+                    style={{ width: `${width}%`, flex: `0 0 ${width}%` }}
+                  >
+                    <div className={`absolute inset-0 rounded-lg bg-gradient-to-r ${chapter.timeline} opacity-10 group-hover:opacity-20 transition-opacity`} />
+                    {isActive && (
+                      <motion.div 
+                        layoutId="active-chapter-glow"
+                        className={`absolute inset-0 rounded-lg bg-gradient-to-r ${chapter.timeline} opacity-20 blur-md`} 
+                      />
+                    )}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+                      <span className={`text-[8px] font-black tracking-widest transition-colors ${isActive ? 'text-white' : 'text-white/40'}`}>
+                        {chapter.name}
+                      </span>
+                      <div className={`w-1 h-1 rounded-full transition-all ${isActive ? 'bg-white scale-150' : 'bg-white/10'}`} />
+                    </div>
+                  </button>
+                );
+              })}
+              
+              {/* Progress Bar Overlay */}
+              <div className="absolute bottom-0 left-0 h-0.5 bg-white/5 rounded-full w-full pointer-events-none">
+                <motion.div 
+                  className={`h-full bg-gradient-to-r ${currentTheme.timeline} shadow-lg`}
+                  style={{ width: `${(currentTime / 9240) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Info Modal */}
       <AnimatePresence>
@@ -1207,28 +1352,51 @@ export default function App() {
 
       {/* Title Overlay (Start) */}
       {!isPlaying && currentTime === 0 && (
-        <div className="fixed inset-0 flex flex-col items-center justify-center z-[200] bg-black/80 backdrop-blur-md">
+        <div className="fixed inset-0 flex flex-col items-center justify-center z-[200] bg-black/90 backdrop-blur-xl overflow-hidden">
+          {/* Animated Background Character (Live 2D Style) */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 1.1 }}
+            animate={{ opacity: 0.4, scale: 1 }}
+            transition={{ duration: 2, ease: "easeOut" }}
+            className="absolute inset-0 z-0 flex items-center justify-center"
+          >
+            <img 
+              src="https://media.tenor.com/FK_WAHNyaPcAAAAi/%E3%82%8F%E3%83%BC%E3%81%84-%E3%81%AD%E3%81%93%E3%81%8E%E3%82%85%E3%83%BC%E3%82%93.gif" 
+              alt="Hero Character" 
+              className="w-full h-full object-cover mix-blend-screen opacity-50 grayscale hover:grayscale-0 transition-all duration-1000"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          </motion.div>
+
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="text-center px-6"
+            className="text-center px-6 z-10"
           >
              <motion.div
                initial={{ y: -20 }}
                animate={{ y: 0 }}
-               className="mb-4 inline-block px-4 py-1 bg-blue-600 text-[10px] font-black tracking-[0.4em] uppercase rounded-full"
+               className="mb-6 inline-block px-4 py-1 bg-blue-600 text-[10px] font-black tracking-[0.4em] uppercase rounded-full shadow-[0_0_20px_rgba(37,99,235,0.5)]"
              >
                A Multimedia Experience
              </motion.div>
-             <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-2 italic bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-500">
-               USAGYUUUN N FRIENDS
+             <h1 className="text-7xl md:text-9xl font-black tracking-tighter mb-2 italic bg-clip-text text-transparent bg-gradient-to-b from-white via-white/80 to-gray-500">
+               USAGYUUUN
              </h1>
-             <h2 className="text-2xl md:text-4xl font-bold tracking-[0.2em] text-white/90 mb-4">
-               THE MOVIE SERIES
+             <h2 className="text-3xl md:text-5xl font-black tracking-[0.2em] text-white/90 mb-8 italic text-blue-400">
+               THE SAGA MOVIE
              </h2>
-             <p className="text-sm md:text-lg text-blue-300 font-bold tracking-[0.5em] uppercase mb-16 opacity-80">
-               BY {SAGA_METADATA.creator.toUpperCase()}
-             </p>
+             
+             <motion.div 
+               animate={{ opacity: [0.3, 1, 0.3] }}
+               transition={{ duration: 2, repeat: Infinity }}
+               className="mb-12 flex flex-col items-center gap-2"
+             >
+               <p className="text-[10px] font-black tracking-[0.6em] text-blue-400 uppercase">Press Play to Continue</p>
+               <div className="w-px h-12 bg-gradient-to-b from-blue-400 to-transparent" />
+             </motion.div>
+
              <div className="flex flex-col items-center gap-8">
                 <div className="flex flex-col md:flex-row items-center gap-6">
                   <button 
@@ -1236,34 +1404,39 @@ export default function App() {
                       setIsFullMovieMode(false);
                       handlePlayPause();
                     }}
-                    className="px-12 py-5 bg-white text-black font-black text-xl rounded-full hover:scale-110 active:scale-95 transition-all flex items-center gap-4 shadow-[0_0_30px_rgba(255,255,255,0.3)] group"
+                    className="px-12 py-6 bg-white text-black font-black text-xl rounded-full hover:scale-110 active:scale-95 transition-all flex items-center gap-4 shadow-[0_0_30px_rgba(255,255,255,0.3)] group"
                   >
-                    <Play fill="currentColor" className="group-hover:translate-x-1 transition-transform" /> START PART 1
+                    <Play fill="currentColor" className="group-hover:translate-x-1 transition-transform" /> START PROLOGUE
                   </button>
                   <button 
                     onClick={toggleFullMovie}
-                    className="px-12 py-5 bg-yellow-500 text-black font-black text-xl rounded-full hover:scale-110 active:scale-95 transition-all flex items-center gap-4 shadow-[0_0_50px_rgba(234,179,8,0.4)] group"
+                    className="px-12 py-6 bg-yellow-500 text-black font-black text-xl rounded-full hover:scale-110 active:scale-95 transition-all flex items-center gap-4 shadow-[0_0_50px_rgba(234,179,8,0.4)] group border-4 border-yellow-400/20"
                   >
-                    <FastForward fill="currentColor" className="group-hover:translate-x-1 transition-transform" /> WATCH FULL MOVIE
+                    <FastForward fill="currentColor" className="group-hover:translate-x-1 transition-transform" /> THE FULL MOVIE
                   </button>
                 </div>
-                <button 
-                  onClick={() => setShowMenu(true)}
-                  className="text-white/40 hover:text-white text-xs font-black tracking-widest uppercase transition-colors"
-                >
-                  Explore Saga Timeline
-                </button>
-                <button 
-                  onClick={handleAdminLoginClick}
-                  className="mt-2 flex items-center gap-2 text-blue-500/50 hover:text-blue-400 text-[9px] font-black tracking-[0.2em] uppercase transition-all"
-                >
-                  <Lock size={10} /> Admin Login
-                </button>
-                <p className="text-white/20 text-[10px] font-black tracking-[0.3em] uppercase">
-                  Duration: 2 Hours 34 Minutes • 4K ULTRA HD • 5.1 SURROUND
-                </p>
+                <div className="flex items-center gap-6">
+                  <button 
+                    onClick={() => setShowMenu(true)}
+                    className="text-white/40 hover:text-white text-[10px] font-black tracking-widest uppercase transition-colors flex items-center gap-2"
+                  >
+                    <Languages size={14} /> Languages
+                  </button>
+                  <button 
+                    onClick={() => setShowInfo(true)}
+                    className="text-white/40 hover:text-white text-[10px] font-black tracking-widest uppercase transition-colors flex items-center gap-2"
+                  >
+                    <Info size={14} /> Production Info
+                  </button>
+                </div>
              </div>
           </motion.div>
+          
+          {/* Version/Build Info */}
+          <div className="absolute bottom-10 left-10 text-left opacity-20">
+            <p className="text-[8px] font-black tracking-widest uppercase mb-1">Production System v4.0.2</p>
+            <p className="text-[8px] font-mono tracking-widest">JC-STAFF/USAGYUUUN/2026</p>
+          </div>
         </div>
       )}
       {/* Saga Timeline Menu */}
@@ -1334,19 +1507,36 @@ export default function App() {
                 <h3 className="text-3xl font-black mb-10 flex items-center gap-4">
                   <Volume2 /> AUDIO (DUBBING)
                 </h3>
-                <div className="space-y-4">
-                  {['en', 'fil'].map((lang) => (
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
+                  {[
+                    { id: 'en', label: 'English' },
+                    { id: 'fil', label: 'Filipino' },
+                    { id: 'jp', label: 'Japanese' },
+                    { id: 'romaji', label: 'Romaji' },
+                    { id: 'katakana', label: 'Katakana' },
+                    { id: 'hiragana', label: 'Hiragana' },
+                    { id: 'kanji', label: 'Kanji' },
+                    { id: 'singaporean', label: 'Singaporean' },
+                    { id: 'vietnamese', label: 'Vietnamese' },
+                    { id: 'thai', label: 'Thai' },
+                    { id: 'korean', label: 'Korean' },
+                    { id: 'chinese', label: 'Chinese' },
+                    { id: 'spanish', label: 'Spanish' },
+                    { id: 'mexican', label: 'Mexican' },
+                    { id: 'russian', label: 'Russian' },
+                    { id: 'german', label: 'German' },
+                  ].map((lang) => (
                     <button
-                      key={lang}
-                      onClick={() => setLanguage(lang as 'en' | 'fil')}
-                      className={`w-full p-6 text-left rounded-2xl border-2 transition-all flex items-center justify-between ${
-                        language === lang ? 'border-blue-600 bg-blue-600/10' : 'border-white/10 bg-white/5'
+                      key={lang.id}
+                      onClick={() => setLanguage(lang.id as SubtitleLanguage)}
+                      className={`w-full p-4 text-left rounded-xl border-2 transition-all flex items-center justify-between ${
+                        language === lang.id ? 'border-blue-600 bg-blue-600/10' : 'border-white/10 bg-white/5'
                       }`}
                     >
-                      <span className="text-xl font-bold uppercase tracking-widest">
-                        {lang === 'en' ? 'English (Original)' : 'Filipino (Tagalog)'}
+                      <span className="text-sm font-bold uppercase tracking-widest">
+                        {lang.label}
                       </span>
-                      {language === lang && <div className="w-4 h-4 bg-blue-500 rounded-full" />}
+                      {language === lang.id && <div className="w-3 h-3 bg-blue-500 rounded-full" />}
                     </button>
                   ))}
                 </div>
@@ -1355,19 +1545,36 @@ export default function App() {
                 <h3 className="text-3xl font-black mb-10 flex items-center gap-4">
                   <Languages /> SUBTITLES
                 </h3>
-                <div className="space-y-4">
-                  {['en', 'fil'].map((lang) => (
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-4 custom-scrollbar">
+                  {[
+                    { id: 'en', label: 'English' },
+                    { id: 'fil', label: 'Filipino' },
+                    { id: 'jp', label: 'Japanese' },
+                    { id: 'romaji', label: 'Romaji' },
+                    { id: 'katakana', label: 'Katakana' },
+                    { id: 'hiragana', label: 'Hiragana' },
+                    { id: 'kanji', label: 'Kanji' },
+                    { id: 'singaporean', label: 'Singaporean' },
+                    { id: 'vietnamese', label: 'Vietnamese' },
+                    { id: 'thai', label: 'Thai' },
+                    { id: 'korean', label: 'Korean' },
+                    { id: 'chinese', label: 'Chinese' },
+                    { id: 'spanish', label: 'Spanish' },
+                    { id: 'mexican', label: 'Mexican' },
+                    { id: 'russian', label: 'Russian' },
+                    { id: 'german', label: 'German' },
+                  ].map((lang) => (
                     <button
-                      key={lang}
-                      onClick={() => setLanguage(lang as 'en' | 'fil')}
-                      className={`w-full p-6 text-left rounded-2xl border-2 transition-all flex items-center justify-between ${
-                        language === lang ? 'border-blue-600 bg-blue-600/10' : 'border-white/10 bg-white/5'
+                      key={lang.id}
+                      onClick={() => setLanguage(lang.id as SubtitleLanguage)}
+                      className={`w-full p-4 text-left rounded-xl border-2 transition-all flex items-center justify-between ${
+                        language === lang.id ? 'border-blue-600 bg-blue-600/10' : 'border-white/10 bg-white/5'
                       }`}
                     >
-                      <span className="text-xl font-bold uppercase tracking-widest">
-                        {lang === 'en' ? 'English' : 'Filipino'}
+                      <span className="text-sm font-bold uppercase tracking-widest">
+                        {lang.label}
                       </span>
-                      {language === lang && <div className="w-4 h-4 bg-blue-500 rounded-full" />}
+                      {language === lang.id && <div className="w-3 h-3 bg-blue-500 rounded-full" />}
                     </button>
                   ))}
                 </div>

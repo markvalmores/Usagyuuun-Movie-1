@@ -1,8 +1,24 @@
+export type SubtitleLanguage = 'en' | 'fil' | 'jp' | 'romaji' | 'katakana' | 'hiragana' | 'kanji' | 'singaporean' | 'vietnamese' | 'thai' | 'korean' | 'chinese' | 'spanish' | 'mexican' | 'russian' | 'german';
+
 export interface TrailerScene {
   id: number;
   image: string;
   text: string;
   textFilipino?: string;
+  textJapanese?: string;
+  textRomaji?: string;
+  textKatakana?: string;
+  textHiragana?: string;
+  textKanji?: string;
+  textSingaporean?: string;
+  textVietnamese?: string;
+  textThai?: string;
+  textKorean?: string;
+  textChinese?: string;
+  textSpanish?: string;
+  textMexican?: string;
+  textRussian?: string;
+  textGerman?: string;
   duration: number;
   animation: 'zoom' | 'pan-left' | 'pan-right' | 'pan-up' | 'dolly-in' | 'dolly-out' | 'shake' | 'live-2d' | 'parallax' | 'impact';
 }
@@ -50,9 +66,72 @@ export const SAGA_DATA: SagaPart[] = [
     descriptionFilipino: "Nagsisimula ang ating epiko sa paglikha ng kalangitan. Sa ilalim ng payapang cosmic skies, narinig ni Usagyuuun ang bulong mula kay Yahuah, ang ating Manlilikha.",
     status: 'Released',
     scenes: [
-      { id: 1, image: "/src/assets/images/cosmic_nebula_background_1784343251961.jpg", text: "In the infinite love of Yahuah, the cosmos hummed a sweet melody...", textFilipino: "Sa walang hanggang pag-ibig ni Yahuah, ang uniberso ay umawit ng isang matamis na himig...", duration: 12, animation: 'zoom' },
-      { id: 2, image: "/src/assets/images/usagyuuun_pure_face_1784343854659.jpg", text: "A whisper of faith called Usagyuuun to step out of the ordinary.", textFilipino: "Isang bulong ng pananampalataya ang tumawag kay Usagyuuun upang lumabas sa karaniwan.", duration: 12, animation: 'dolly-in' },
-      { id: 3, image: "/src/assets/images/nekogyuuun_pure_face_1784343869158.jpg", text: "Together with Nekogyuuun, they vowed to follow where Yahusha leads.", textFilipino: "Kasama si Nekogyuuun, sumumpa silang susunod kung saan sila dadalhin ni Yahusha.", duration: 12, animation: 'pan-up' }
+      { 
+        id: 1, 
+        image: "/src/assets/images/cosmic_nebula_background_1784343251961.jpg", 
+        text: "In the infinite love of Yahuah, the cosmos hummed a sweet melody...", 
+        textFilipino: "Sa walang hanggang pag-ibig ni Yahuah, ang uniberso ay umawit ng isang matamis na himig...", 
+        textJapanese: "Yahuahの無限の愛の中で、宇宙は甘い旋律を奏でていた…",
+        textRomaji: "Yahuah no mugen no ai no naka de, uchuu wa amai senritsu o kanadete ita...",
+        textKatakana: "ヤフア ノ ムゲン ノ アイ ノ ナカ デ、 ウチュウ ワ アマイ センリツ オ カナデテ イタ…",
+        textHiragana: "やふあ の むげん の あい の なか で、 うちゅう わ あまい せんりつ を かなでて いた…",
+        textKanji: "Yahuahの無限の愛の中で、宇宙は甘い旋律を奏でていた…",
+        textSingaporean: "In Yahuah's big love ah, the whole cosmos sing sweet song liao...",
+        textVietnamese: "Trong tình yêu vô tận của Yahuah, vũ trụ ngân nga một giai điệu ngọt ngào...",
+        textThai: "ในความรักอันเป็นนิรันดร์ของ Yahuah จักรวาลบรรเลงท่วงทำนองอันแสนหวาน...",
+        textKorean: "Yahuah의 무한한 사랑 안에서 우주는 달콤한 멜로디를 노래했습니다...",
+        textChinese: "在Yahuah无限的爱中，宇宙哼唱着甜美的旋律……",
+        textSpanish: "En el amor infinito de Yahuah, el cosmos tarareaba una dulce melodía...",
+        textMexican: "En el amor infinito de Yahuah, el cosmos tarareaba una dulce melodía...",
+        textRussian: "В бесконечной любви Яхуа космос напевал сладкую мелодию...",
+        textGerman: "In der unendlichen Liebe von Yahuah summte der Kosmos eine süße Melodie...",
+        duration: 12, 
+        animation: 'zoom' 
+      },
+      { 
+        id: 2, 
+        image: "/src/assets/images/usagyuuun_pure_face_1784343854659.jpg", 
+        text: "A whisper of faith called Usagyuuun to step out of the ordinary.", 
+        textFilipino: "Isang bulong ng pananampalataya ang tumawag kay Usagyuuun upang lumabas sa karaniwan.", 
+        textJapanese: "信仰のささやきが、ウサギューンを日常から踏み出させました。",
+        textRomaji: "Shinkou no sasayaki ga, Usagyuuun o nichijou kara fumidasasemasu.",
+        textKatakana: "シンコウ ノ ササヤキ ガ、 ウサギューン オ ニチジョウ カラ フミダサセマシタ。",
+        textHiragana: "しんこう の ささやき が、 うさぎゅーん を にちじょう から ふみださせました。",
+        textKanji: "信仰の囁きが、兎ぎゅーんを日常から踏み出させました。",
+        textSingaporean: "One small voice say must have faith ah, then Usagyuuun go out liao.",
+        textVietnamese: "Một lời thì thầm của đức tin đã gọi Usagyuuun bước ra khỏi những điều bình thường.",
+        textThai: "เสียงกระซิบแห่งความศรัทธาเรียกให้ Usagyuuun ก้าวออกจากความธรรมดา",
+        textKorean: "신앙의 속삭임이 우사균을 평범함에서 벗어나게 불렀습니다.",
+        textChinese: "信念的低语召唤着Usagyuuun走出平凡。",
+        textSpanish: "Un susurro de fe llamó a Usagyuuun a salir de lo ordinario.",
+        textMexican: "Un susurro de fe llamó a Usagyuuun a salir de lo ordinario.",
+        textRussian: "Шепот веры призвал Усагьюна выйти за рамки обыденного.",
+        textGerman: "Ein Flüstern des Glaubens rief Usagyuuun dazu auf, aus dem Gewöhnlichen herauszutreten.",
+        duration: 12, 
+        animation: 'dolly-in' 
+      },
+      { 
+        id: 3, 
+        image: "/src/assets/images/nekogyuuun_pure_face_1784343869158.jpg", 
+        text: "Together with Nekogyuuun, they vowed to follow where Yahusha leads.", 
+        textFilipino: "Kasama si Nekogyuuun, sumumpa silang susunod kung saan sila dadalhin ni Yahusha.", 
+        textJapanese: "ネコギューンと一緒に、彼らはヤシュアが導く場所に従うことを誓いました。",
+        textRomaji: "Nekogyuuun to issho ni, karera wa Yahusha ga michibiku basho ni shitagau koto o chikaimashita.",
+        textKatakana: "ネコギューン ト イッショ ニ、 カレラ ワ ヤシュア ガ ミチビク バショ ニ シタガウ コト オ チカイマシタ。",
+        textHiragana: "ねこぎゅーん と いっしょ に、 かれら わ やしゅあ が みちびく ばしょ に したがう こと を ちかいました。",
+        textKanji: "猫ぎゅんと一緒に、彼らはYahushaが導く場所に従うことを誓いました。",
+        textSingaporean: "Follow Nekogyuuun also, they promise will follow where Yahusha lead ah.",
+        textVietnamese: "Cùng với Nekogyuuun, họ thề sẽ đi theo nơi Yahusha dẫn dắt.",
+        textThai: "พวกเขาสาบานว่าจะเดินตามที่ Yahusha นำทางไปพร้อมกับ Nekogyuuun",
+        textKorean: "네코균과 함께 그들은 Yahusha가 이끄는 곳을 따르기로 맹세했습니다.",
+        textChinese: "他们与Nekogyuuun一起，发誓追随Yahusha的指引。",
+        textSpanish: "Junto con Nekogyuuun, juraron seguir a donde Yahusha los lleve.",
+        textMexican: "Junto con Nekogyuuun, juraron seguir a donde Yahusha los lleve.",
+        textRussian: "Вместе с Некогьюном они поклялись следовать туда, куда ведет Яшуа.",
+        textGerman: "Zusammen mit Nekogyuuun schworen sie, dorthin zu folgen, wohin Yahusha führt.",
+        duration: 12, 
+        animation: 'pan-up' 
+      }
     ]
   },
   {
@@ -89,7 +168,19 @@ export const SAGA_DATA: SagaPart[] = [
     descriptionFilipino: "Isang matinding kadiliman ang pinakawalan. Ang mga demonyo ay gumabay sa buong dimensyon, tinutugis ang mga kaibigan habang binihag si Hana.",
     status: 'Released',
     scenes: [
-      { id: 1, image: "/src/assets/images/mechanical_beast_p3_1784344510817.jpg", text: "The sky bled crimson as demonic beasts of the abyss hunted them ruthlessly.", textFilipino: "Dumanak ang dugo sa kalangitan habang marahas silang tinutugis ng mga demonyo ng kalaliman.", duration: 12, animation: 'shake' },
+      { 
+        id: 1, 
+        image: "/src/assets/images/mechanical_beast_p3_1784344510817.jpg", 
+        text: "The sky bled crimson as demonic beasts of the abyss hunted them ruthlessly.", 
+        textFilipino: "Dumanak ang dugo sa kalangitan habang marahas silang tinutugis ng mga demonyo ng kalaliman.", 
+        textJapanese: "奈落の悪魔のような獣たちが彼らを冷酷に狩り、空は深紅に染まった。",
+        textChinese: "当深渊的恶魔野兽无情地追杀他们时，天空染成了绯红色。",
+        textRussian: "Небо окрасилось в багровый цвет, когда демонические звери бездны безжалостно охотились на них.",
+        textSpanish: "El cielo sangró carmesí mientras las bestias demoníacas del abismo los cazaban sin piedad.",
+        textKorean: "심연의 악마 같은 짐승들이 무자비하게 그들을 사냥함에 따라 하늘은 진홍빛으로 물들었습니다.",
+        duration: 12, 
+        animation: 'shake' 
+      },
       { id: 2, image: "/src/assets/images/usagyuuun_portal_jump_1784343291031.jpg", text: "Desperately leaping through rifts, the remaining friends ran for their lives.", textFilipino: "Desperadong tumalon sa mga bitak, tumakbo ang natitirang magkakaibigan para sa kanilang buhay.", duration: 10, animation: 'pan-right' },
       { id: 3, image: "/src/assets/images/dark_eclipse_star_p8_1784344626155.jpg", text: "The dark eclipse swallowed the stars. Hana was taken. Despair was absolute.", textFilipino: "Nilamon ng madilim na kupas ang mga bituin. Kinuha si Hana. Ang kawalan ng pag-asa ay lubos.", duration: 12, animation: 'zoom' }
     ]
@@ -140,7 +231,19 @@ export const SAGA_DATA: SagaPart[] = [
     descriptionFilipino: "Nagtangka ang pinuno ng dilim na lamunin ang uniberso. Sumigaw si Usagyuuun sa banal na pangalan ni Yahuah Yahusha, at ang banal na liwanag ay sumabog.",
     status: 'Released',
     scenes: [
-      { id: 1, image: "/src/assets/images/golden_carrot_center_p6_1784344541614.jpg", text: "The Light of the World emerged from the clouds—glorious and supreme.", textFilipino: "Ang Liwanag ng Sanlibutan ay lumitaw mula sa mga ulap—luwalhati at kataas-taasan.", duration: 12, animation: 'zoom' },
+      { 
+        id: 1, 
+        image: "/src/assets/images/golden_carrot_center_p6_1784344541614.jpg", 
+        text: "The Light of the World emerged from the clouds—glorious and supreme.", 
+        textFilipino: "Ang Liwanag ng Sanlibutan ay lumitaw mula sa mga ulap—luwalhati at kataas-taasan.", 
+        textJapanese: "世界の光が雲の中から現れた――栄光に満ち、至高の存在として。",
+        textChinese: "世界之光从云层中浮现——光辉而至高无上。",
+        textRussian: "Свет Мира вышел из облаков — славный и верховный.",
+        textSpanish: "La Luz del Mundo emergió de las nubes, gloriosa y suprema.",
+        textKorean: "세상의 빛이 구름 속에서 나타났습니다 — 영광스럽고 지고한 모습으로.",
+        duration: 12, 
+        animation: 'zoom' 
+      },
       { id: 2, image: "/src/assets/images/final_battle_unity_p9_1784344552086.jpg", text: "With a thunderous shout of 'IT IS FINISHED!', the kingdom of darkness fell to pieces.", textFilipino: "Sa isang kulog na sigaw ng 'TAPOS NA!', ang kaharian ng kadiliman ay nagkapira-piraso.", duration: 12, animation: 'impact' }
     ]
   },
