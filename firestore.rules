@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if request.auth != null || true; // Allowing public for this demo context, but ideally auth
+      allow update: if true;
+    }
+    match /stats/{statId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    match /active_sessions/{sessionId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

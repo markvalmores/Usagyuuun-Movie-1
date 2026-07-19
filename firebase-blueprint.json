@@ -1,0 +1,19 @@
+{
+  "collections": {
+    "comments": {
+      "text": "string",
+      "userId": "string",
+      "userName": "string",
+      "timestamp": "timestamp",
+      "parentId": "string",
+      "likes": "number"
+    },
+    "stats": {
+      "viewCount": "number",
+      "likes": "number"
+    },
+    "active_sessions": {
+      "timestamp": "timestamp"
+    }
+  }
+}

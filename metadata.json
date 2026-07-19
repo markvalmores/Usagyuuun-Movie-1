@@ -1,0 +1,6 @@
+{
+  "name": "Usagyuuun N Friends - Movie Trailer",
+  "description": "An epic, interactive 2D cartoon movie trailer player for Part 1 of the Usagyuuun N Friends cosmic dimension saga by Usagyuun VTuber, complete with synthetic epic sound, visual effects, subtitles, and saga overview.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
